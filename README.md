@@ -34,6 +34,8 @@ styles.css
 
 3. Execute o arquivo \[``main.py``\] usando o comando `streamlit run main.py`.
 
+4. O projeto também está em produção através do endereço: [https://amegasena.streamlit.app/](https://amegasena.streamlit.app/)
+
 ## Dependências
 
 - Streamlit
