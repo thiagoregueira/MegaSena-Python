@@ -42,7 +42,7 @@ db = sqlite3.connect("mega_sena.db")
 # db.commit()
 
 
-# fazer uma requisição a api: https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena
+# fazer uma requisição a api: https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena --
 # para obter os dados mais recentes da mega sena
 url = "https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena"
 response = requests.get(url)
