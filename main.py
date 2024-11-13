@@ -18,8 +18,13 @@ st.set_page_config(
 with open("styles.css") as f:  # noqa: PLW1514
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+<<<<<<< HEAD
 # lêr o arquivo excel mega_sena_asloterias_ate_concurso_2783_sorteio.xlsx
 # df_excel = pd.read_excel("mega_sena_asloterias_ate_concurso_2783_sorteio.xlsx")
+=======
+# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2795_sorteio.xlsx
+df_excel = pd.read_excel('mega_sena_asloterias_ate_concurso_2795_sorteio.xlsx')
+>>>>>>> d1d2fd7 (feat: Add new Excel file with Mega Sena data to 2795)
 
 # criar um banco de dados com os dados de df_excel
 db = sqlite3.connect("mega_sena.db")
