@@ -18,8 +18,8 @@ st.set_page_config(
 with open('styles.css') as f:  # noqa: PLW1514
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2797_sorteio.xlsx
-# df_excel = pd.read_excel('mega_sena_asloterias_ate_concurso_2797_sorteio.xlsx')
+# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2799_sorteio.xlsx
+# df_excel = pd.read_excel('mega_sena_asloterias_ate_concurso_2799_sorteio.xlsx')
 
 # criar um banco de dados com os dados de df_excel
 db = sqlite3.connect('mega_sena.db')
@@ -44,7 +44,7 @@ response = requests.get(url)
 data = response.json()
 
 
-# se a resposta do data for 200 temos que pegar os seguintes dados: "numero", "dataApuracao", "dezenasSorteadasOrdemSorteio"
+# se a resposta do data for 200, temos que pegar os seguintes dados: "numero", "dataApuracao", "dezenasSorteadasOrdemSorteio"
 def get_api():
     if response.status_code == 200:
         concurso = int(data['numero'])
