@@ -18,23 +18,23 @@ st.set_page_config(
 with open('styles.css') as f:  # noqa: PLW1514
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2802_sorteio.xlsx
-# df_excel = pd.read_excel('mega_sena_asloterias_ate_concurso_2802_sorteio.xlsx')
+# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2805_sorteio.xlsx
+df_excel = pd.read_excel('mega_sena_asloterias_ate_concurso_2805_sorteio.xlsx')
 
 # criar um banco de dados com os dados de df_excel
 db = sqlite3.connect('mega_sena.db')
-# cursor = db.cursor()
-# cursor.execute(
-#     'CREATE TABLE IF NOT EXISTS mega_sena (Concurso INTEGER PRIMARY KEY, Data TEXT, Bola1 INTEGER, Bola2 INTEGER, Bola3 INTEGER, Bola4 INTEGER, Bola5 INTEGER, Bola6 INTEGER)'
-# )
-# db.commit()
+cursor = db.cursor()
+cursor.execute(
+    'CREATE TABLE IF NOT EXISTS mega_sena (Concurso INTEGER PRIMARY KEY, Data TEXT, Bola1 INTEGER, Bola2 INTEGER, Bola3 INTEGER, Bola4 INTEGER, Bola5 INTEGER, Bola6 INTEGER)'
+)
+db.commit()
 
 # inserir os dados de df_excel no banco de dados
-# cursor.executemany(
-#     'INSERT INTO mega_sena (Concurso, Data, Bola1, Bola2, Bola3, Bola4, Bola5, Bola6) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-#     df_excel.values,
-# )
-# db.commit()
+cursor.executemany(
+    'INSERT INTO mega_sena (Concurso, Data, Bola1, Bola2, Bola3, Bola4, Bola5, Bola6) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    df_excel.values,
+)
+db.commit()
 
 
 # fazer uma requisição a api: https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena --
@@ -63,9 +63,7 @@ def get_api():
 def insert_data(db):
     concurso, data_sorteio, bolas = get_api()
     cursor = db.cursor()
-    cursor.execute(
-        'SELECT Concurso FROM mega_sena WHERE Concurso = ?', (concurso,)
-    )
+    cursor.execute('SELECT Concurso FROM mega_sena WHERE Concurso = ?', (concurso,))
     if cursor.fetchone() is None:
         cursor.execute(
             'INSERT INTO mega_sena (Concurso, Data, Bola1, Bola2, Bola3, Bola4, Bola5, Bola6) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
@@ -119,9 +117,7 @@ st.sidebar.title('Filtros')
 
 # função filtro de data no sidebar
 def filtro_data():
-    data_inicio = st.sidebar.date_input(
-        'Data Inicial', df['Data'].min().date()
-    )
+    data_inicio = st.sidebar.date_input('Data Inicial', df['Data'].min().date())
     data_fim = st.sidebar.date_input('Data Final', df['Data'].max().date())
     return pd.to_datetime(
         data_inicio,  # type: ignore
@@ -130,9 +126,7 @@ def filtro_data():
 
 # função filtro de concurso no sidebar
 def filtro_concurso():
-    concurso_inicio = st.sidebar.number_input(
-        'Concurso Inicial', min_value=1, max_value=df['Concurso'].max()
-    )
+    concurso_inicio = st.sidebar.number_input('Concurso Inicial', min_value=1, max_value=df['Concurso'].max())
     concurso_fim = st.sidebar.number_input(
         'Concurso Final',
         min_value=concurso_inicio,
@@ -148,27 +142,15 @@ df_filtrado_datas = df[(df['Data'] >= data_inicio) & (df['Data'] <= data_fim)]
 
 # criar um novo df contando quantas vezes cada bola foi sorteada, de acordo com o filtro de datas, criar um df com as colunas "Bola" e "Frequência"
 # dropando as colunas que não usarei
-df_filtrado_datas_frequencia_bolas = df_filtrado_datas.drop(
-    columns=['Data', 'Concurso']
-)
+df_filtrado_datas_frequencia_bolas = df_filtrado_datas.drop(columns=['Data', 'Concurso'])
 # transformar o df em um formato de tabela
-df_filtrado_datas_frequencia_bolas = df_filtrado_datas_frequencia_bolas.melt(
-    var_name='Frequência', value_name='Bola'
-)
+df_filtrado_datas_frequencia_bolas = df_filtrado_datas_frequencia_bolas.melt(var_name='Frequência', value_name='Bola')
 # agrupar as bolas e contar quantas vezes cada uma foi sorteada
-df_filtrado_datas_frequencia_bolas = (
-    df_filtrado_datas_frequencia_bolas.groupby('Bola').count()
-)
+df_filtrado_datas_frequencia_bolas = df_filtrado_datas_frequencia_bolas.groupby('Bola').count()
 # ordenar pela frequência
-df_filtrado_datas_frequencia_bolas = (
-    df_filtrado_datas_frequencia_bolas.sort_values(
-        by='Frequência', ascending=False
-    )
-)
+df_filtrado_datas_frequencia_bolas = df_filtrado_datas_frequencia_bolas.sort_values(by='Frequência', ascending=False)
 # resetar o index
-df_filtrado_datas_frequencia_bolas = (
-    df_filtrado_datas_frequencia_bolas.reset_index()
-)
+df_filtrado_datas_frequencia_bolas = df_filtrado_datas_frequencia_bolas.reset_index()
 
 
 # criar colunas para exibir os df's lado a lado
@@ -190,37 +172,25 @@ with col2:
 
 # definir o df com os filtros de concursos
 concurso_inicio, concurso_fim = filtro_concurso()
-df_filtrado_concursos = df[
-    (df['Concurso'] >= concurso_inicio) & (df['Concurso'] <= concurso_fim)
-]
+df_filtrado_concursos = df[(df['Concurso'] >= concurso_inicio) & (df['Concurso'] <= concurso_fim)]
 
 # criar um novo df contando quantas vezes cada bola foi sorteada, de acordo com o filtro de concursos, criar um df com as colunas "Bola" e "Frequência"
 # dropando as colunas que não usarei
-df_filtrado_concursos_frequencia_bolas = df_filtrado_concursos.drop(
-    columns=['Data', 'Concurso']
-)
+df_filtrado_concursos_frequencia_bolas = df_filtrado_concursos.drop(columns=['Data', 'Concurso'])
 # transformar o df em um formato de tabela
-df_filtrado_concursos_frequencia_bolas = (
-    df_filtrado_concursos_frequencia_bolas.melt(
-        var_name='Frequência', value_name='Bola'
-    )
+df_filtrado_concursos_frequencia_bolas = df_filtrado_concursos_frequencia_bolas.melt(
+    var_name='Frequência', value_name='Bola'
 )
 # agrupar as bolas e contar quantas vezes cada uma foi sorteada
-df_filtrado_concursos_frequencia_bolas = (
-    df_filtrado_concursos_frequencia_bolas.groupby(
-        'Bola'  # type: ignore
-    ).count()
-)
+df_filtrado_concursos_frequencia_bolas = df_filtrado_concursos_frequencia_bolas.groupby(
+    'Bola'  # type: ignore
+).count()
 # ordenar pela frequência
-df_filtrado_concursos_frequencia_bolas = (
-    df_filtrado_concursos_frequencia_bolas.sort_values(
-        by='Frequência', ascending=False
-    )
+df_filtrado_concursos_frequencia_bolas = df_filtrado_concursos_frequencia_bolas.sort_values(
+    by='Frequência', ascending=False
 )
 # resetar o index
-df_filtrado_concursos_frequencia_bolas = (
-    df_filtrado_concursos_frequencia_bolas.reset_index()
-)
+df_filtrado_concursos_frequencia_bolas = df_filtrado_concursos_frequencia_bolas.reset_index()
 
 
 # criar colunas para exibir os df's lado a lado
@@ -246,9 +216,7 @@ st.write('#')
 col5, col6, col7, col8, col9, col10 = st.columns(6)
 
 with col5:
-    number1 = st.number_input(
-        'Insira sua 1º dezena', min_value=1, max_value=60
-    )
+    number1 = st.number_input('Insira sua 1º dezena', min_value=1, max_value=60)
     # de acordo com a dezena escolhida informar quantas vezes ela foi sorteada
     st.write(
         f'A dezena {number1} foi sorteada {df_filtrado_datas_frequencia_bolas[df_filtrado_datas_frequencia_bolas["Bola"] == number1].iloc[0, 1]} vezes'
@@ -256,9 +224,7 @@ with col5:
 
 
 with col6:
-    number2 = st.number_input(
-        'Insira sua 2º dezena', min_value=1, max_value=60
-    )
+    number2 = st.number_input('Insira sua 2º dezena', min_value=1, max_value=60)
     # de acordo com a dezena escolhida informar quantas vezes ela foi sorteada
     st.write(
         f'A dezena {number2} foi sorteada {df_filtrado_datas_frequencia_bolas[df_filtrado_datas_frequencia_bolas["Bola"] == number2].iloc[0, 1]} vezes'
@@ -269,9 +235,7 @@ with col6:
     )
 
 with col7:
-    number3 = st.number_input(
-        'Insira sua 3º dezena', min_value=1, max_value=60
-    )
+    number3 = st.number_input('Insira sua 3º dezena', min_value=1, max_value=60)
     # de acordo com a dezena escolhida informar quantas vezes ela foi sorteada
     st.write(
         f'A dezena {number3} foi sorteada {df_filtrado_datas_frequencia_bolas[df_filtrado_datas_frequencia_bolas["Bola"] == number3].iloc[0, 1]} vezes'
@@ -282,9 +246,7 @@ with col7:
     )
 
 with col8:
-    number4 = st.number_input(
-        'Insira sua 4º dezena', min_value=1, max_value=60
-    )
+    number4 = st.number_input('Insira sua 4º dezena', min_value=1, max_value=60)
     # de acordo com a dezena escolhida informar quantas vezes ela foi sorteada
     st.write(
         f'A dezena {number4} foi sorteada {df_filtrado_datas_frequencia_bolas[df_filtrado_datas_frequencia_bolas["Bola"] == number4].iloc[0, 1]} vezes'
@@ -295,9 +257,7 @@ with col8:
     )
 
 with col9:
-    number5 = st.number_input(
-        'Insira sua 5º dezena', min_value=1, max_value=60
-    )
+    number5 = st.number_input('Insira sua 5º dezena', min_value=1, max_value=60)
     # de acordo com a dezena escolhida informar quantas vezes ela foi sorteada
     st.write(
         f'A dezena {number5} foi sorteada {df_filtrado_datas_frequencia_bolas[df_filtrado_datas_frequencia_bolas["Bola"] == number5].iloc[0, 1]} vezes'
@@ -308,9 +268,7 @@ with col9:
     )
 
 with col10:
-    number6 = st.number_input(
-        'Insira sua 6º dezena', min_value=1, max_value=60
-    )
+    number6 = st.number_input('Insira sua 6º dezena', min_value=1, max_value=60)
     # de acordo com a dezena escolhida informar quantas vezes ela foi sorteada
     st.write(
         f'A dezena {number6} foi sorteada {df_filtrado_datas_frequencia_bolas[df_filtrado_datas_frequencia_bolas["Bola"] == number6].iloc[0, 1]} vezes'
