@@ -18,8 +18,8 @@ st.set_page_config(
 with open('styles.css') as f:  # noqa: PLW1514
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2852_sorteio.xlsx
-# df_excel = pd.read_excel('mega_sena_asloterias_ate_concurso_2852_sorteio.xlsx')
+# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2854_sorteio.xlsx
+# df_excel = pd.read_excel('mega_sena_asloterias_ate_concurso_2854_sorteio.xlsx')
 
 # criar um banco de dados com os dados de df_excel
 db = sqlite3.connect('mega_sena.db')
@@ -29,7 +29,7 @@ db = sqlite3.connect('mega_sena.db')
 # )
 # db.commit()
 
-# # inserir os dados de df_excel no banco de dados
+# inserir os dados de df_excel no banco de dados
 # cursor.executemany(
 #     'INSERT INTO mega_sena (Concurso, Data, Bola1, Bola2, Bola3, Bola4, Bola5, Bola6) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
 #     df_excel.values,
