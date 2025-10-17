@@ -18,9 +18,9 @@ st.set_page_config(
 with open("styles.css") as f:  # noqa: PLW1514
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2926_sorteio.xlsx
+# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2928_sorteio.xlsx
 # df_excel = pd.read_excel(
-#     "mega_sena_asloterias_ate_concurso_2926_sorteio.xlsx", skiprows=6
+#     "mega_sena_asloterias_ate_concurso_2928_sorteio.xlsx", skiprows=6
 # )
 
 # criar um banco de dados com os dados de df_excel
