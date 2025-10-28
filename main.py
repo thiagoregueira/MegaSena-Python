@@ -18,10 +18,8 @@ st.set_page_config(
 with open("styles.css") as f:  # noqa: PLW1514
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2930_sorteio.xlsx
-# df_excel = pd.read_excel(
-#     "mega_sena_asloterias_ate_concurso_2930_sorteio.xlsx", skiprows=6
-# )
+# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2932_sorteio.xlsx
+# df_excel = pd.read_excel("mega_sena_asloterias_ate_concurso_2932_sorteio.xlsx", skiprows=6)
 
 # criar um banco de dados com os dados de df_excel
 db = sqlite3.connect("mega_sena.db")
@@ -128,9 +126,7 @@ def filtro_data():
 
 # função filtro de concurso no sidebar
 def filtro_concurso():
-    concurso_inicio = st.sidebar.number_input(
-        "Concurso Inicial", min_value=1, max_value=df["Concurso"].max()
-    )
+    concurso_inicio = st.sidebar.number_input("Concurso Inicial", min_value=1, max_value=df["Concurso"].max())
     concurso_fim = st.sidebar.number_input(
         "Concurso Final",
         min_value=concurso_inicio,
@@ -146,21 +142,13 @@ df_filtrado_datas = df[(df["Data"] >= data_inicio) & (df["Data"] <= data_fim)]
 
 # criar um novo df contando quantas vezes cada bola foi sorteada, de acordo com o filtro de datas, criar um df com as colunas "Bola" e "Frequência"
 # dropando as colunas que não usarei
-df_filtrado_datas_frequencia_bolas = df_filtrado_datas.drop(
-    columns=["Data", "Concurso"]
-)
+df_filtrado_datas_frequencia_bolas = df_filtrado_datas.drop(columns=["Data", "Concurso"])
 # transformar o df em um formato de tabela
-df_filtrado_datas_frequencia_bolas = df_filtrado_datas_frequencia_bolas.melt(
-    var_name="Frequência", value_name="Bola"
-)
+df_filtrado_datas_frequencia_bolas = df_filtrado_datas_frequencia_bolas.melt(var_name="Frequência", value_name="Bola")
 # agrupar as bolas e contar quantas vezes cada uma foi sorteada
-df_filtrado_datas_frequencia_bolas = df_filtrado_datas_frequencia_bolas.groupby(
-    "Bola"
-).count()
+df_filtrado_datas_frequencia_bolas = df_filtrado_datas_frequencia_bolas.groupby("Bola").count()
 # ordenar pela frequência
-df_filtrado_datas_frequencia_bolas = df_filtrado_datas_frequencia_bolas.sort_values(
-    by="Frequência", ascending=False
-)
+df_filtrado_datas_frequencia_bolas = df_filtrado_datas_frequencia_bolas.sort_values(by="Frequência", ascending=False)
 # resetar o index
 df_filtrado_datas_frequencia_bolas = df_filtrado_datas_frequencia_bolas.reset_index()
 
@@ -184,15 +172,11 @@ with col2:
 
 # definir o df com os filtros de concursos
 concurso_inicio, concurso_fim = filtro_concurso()
-df_filtrado_concursos = df[
-    (df["Concurso"] >= concurso_inicio) & (df["Concurso"] <= concurso_fim)
-]
+df_filtrado_concursos = df[(df["Concurso"] >= concurso_inicio) & (df["Concurso"] <= concurso_fim)]
 
 # criar um novo df contando quantas vezes cada bola foi sorteada, de acordo com o filtro de concursos, criar um df com as colunas "Bola" e "Frequência"
 # dropando as colunas que não usarei
-df_filtrado_concursos_frequencia_bolas = df_filtrado_concursos.drop(
-    columns=["Data", "Concurso"]
-)
+df_filtrado_concursos_frequencia_bolas = df_filtrado_concursos.drop(columns=["Data", "Concurso"])
 # transformar o df em um formato de tabela
 df_filtrado_concursos_frequencia_bolas = df_filtrado_concursos_frequencia_bolas.melt(
     var_name="Frequência", value_name="Bola"
@@ -202,13 +186,11 @@ df_filtrado_concursos_frequencia_bolas = df_filtrado_concursos_frequencia_bolas.
     "Bola"  # type: ignore
 ).count()
 # ordenar pela frequência
-df_filtrado_concursos_frequencia_bolas = (
-    df_filtrado_concursos_frequencia_bolas.sort_values(by="Frequência", ascending=False)
+df_filtrado_concursos_frequencia_bolas = df_filtrado_concursos_frequencia_bolas.sort_values(
+    by="Frequência", ascending=False
 )
 # resetar o index
-df_filtrado_concursos_frequencia_bolas = (
-    df_filtrado_concursos_frequencia_bolas.reset_index()
-)
+df_filtrado_concursos_frequencia_bolas = df_filtrado_concursos_frequencia_bolas.reset_index()
 
 
 # criar colunas para exibir os df's lado a lado
