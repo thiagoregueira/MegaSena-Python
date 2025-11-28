@@ -18,8 +18,8 @@ st.set_page_config(
 with open('styles.css') as f:  # noqa: PLW1514
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2942_sorteio.xlsx
-# df_excel = pd.read_excel('mega_sena_asloterias_ate_concurso_2942_sorteio.xlsx', skiprows=6)
+# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2944_sorteio.xlsx
+# df_excel = pd.read_excel('mega_sena_asloterias_ate_concurso_2944_sorteio.xlsx', skiprows=6)
 
 # criar um banco de dados com os dados de df_excel
 db = sqlite3.connect('mega_sena.db')
@@ -31,7 +31,7 @@ db = sqlite3.connect('mega_sena.db')
 
 # inserir os dados de df_excel no banco de dados
 # cursor.executemany(
-#     'INSERT INTO mega_sena (Concurso, Data, Bola1, Bola2, Bola3, Bola4, Bola5, Bola6) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+#     'INSERT OR IGNORE INTO mega_sena (Concurso, Data, Bola1, Bola2, Bola3, Bola4, Bola5, Bola6) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
 #     df_excel.values,
 # )
 # db.commit()
@@ -48,10 +48,7 @@ data = response.json()
 def get_api():
     if response.status_code == 200:
         concurso = int(data['numero'])
-        # transformar a data em datetime
         data_sorteio = data['dataApuracao']
-        # data_sorteio = datetime.strptime(data_sorteio, '%Y-%m-%dT%H:%M:%S.%fZ')
-        # mapear cada bola sorteada para uma lista de inteiros
         bolas = data['dezenasSorteadasOrdemSorteio']
         bolas = list(map(int, bolas))
         return concurso, data_sorteio, bolas
