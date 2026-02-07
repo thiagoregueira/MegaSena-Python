@@ -1,10 +1,8 @@
-import sqlite3
 from datetime import datetime  # noqa: F401
 
-import openpyxl  # noqa: F401
 import pandas as pd
-import requests
 import streamlit as st
+from database_manager import load_data
 
 # configurações da página
 st.set_page_config(
@@ -18,79 +16,6 @@ st.set_page_config(
 with open('styles.css') as f:  # noqa: PLW1514
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-# lêr o arquivo excel mega_sena_asloterias_ate_concurso_2967_sorteio.xlsx
-# df_excel = pd.read_excel('mega_sena_asloterias_ate_concurso_2967_sorteio.xlsx', skiprows=6)
-
-# criar um banco de dados com os dados de df_excel
-db = sqlite3.connect('mega_sena.db')
-# cursor = db.cursor()
-# cursor.execute(
-#     'CREATE TABLE IF NOT EXISTS mega_sena (Concurso INTEGER PRIMARY KEY, Data TEXT, Bola1 INTEGER, Bola2 INTEGER, Bola3 INTEGER, Bola4 INTEGER, Bola5 INTEGER, Bola6 INTEGER)'
-# )
-# db.commit()
-
-# inserir os dados de df_excel no banco de dados
-# cursor.executemany(
-#     'INSERT OR IGNORE INTO mega_sena (Concurso, Data, Bola1, Bola2, Bola3, Bola4, Bola5, Bola6) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-#     df_excel.values,
-# )
-# db.commit()
-
-
-# fazer uma requisição a api: https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena --
-# para obter os dados mais recentes da mega sena
-url = 'https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena'
-response = requests.get(url)
-data = response.json()
-
-
-# se a resposta do data for 200, temos que pegar os seguintes dados: "numero", "dataApuracao", "dezenasSorteadasOrdemSorteio"
-def get_api():
-    if response.status_code == 200:
-        concurso = int(data['numero'])
-        data_sorteio = data['dataApuracao']
-        bolas = data['dezenasSorteadasOrdemSorteio']
-        bolas = list(map(int, bolas))
-        return concurso, data_sorteio, bolas
-    else:
-        return 'Erro na requisição da API'
-
-
-# criar função insert_data para inserir os dados da API no banco de dados se o numero do concurso não existir
-def insert_data(db):
-    concurso, data_sorteio, bolas = get_api()
-    cursor = db.cursor()
-    cursor.execute('SELECT Concurso FROM mega_sena WHERE Concurso = ?', (concurso,))
-    if cursor.fetchone() is None:
-        cursor.execute(
-            'INSERT INTO mega_sena (Concurso, Data, Bola1, Bola2, Bola3, Bola4, Bola5, Bola6) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            (
-                concurso,
-                data_sorteio,
-                bolas[0],
-                bolas[1],
-                bolas[2],
-                bolas[3],
-                bolas[4],
-                bolas[5],
-            ),
-        )
-        db.commit()
-    else:
-        return 'Concurso já cadastrado'
-
-
-# criar função get_data para recuperar a tabela "mega_sena" do banco de dados
-def get_data(db):
-    if insert_data(db) != 'Concurso já cadastrado':
-        insert_data(db)
-        df = pd.read_sql_query('SELECT * FROM mega_sena', db)
-        return df
-    else:
-        df = pd.read_sql_query('SELECT * FROM mega_sena', db)
-        return df
-
-
 st.markdown(
     "<h1 style='text-align: center; color: #FFD700;'>Análise de dados da Mega Sena</h1>",
     unsafe_allow_html=True,
@@ -99,9 +24,16 @@ st.write('---')
 st.write('#')
 st.write('#')
 
+# Sidebar - Atualização
+st.sidebar.title('Configurações')
+if st.sidebar.button('🔄 Atualizar Dados'):
+    with st.spinner('Baixando e atualizando dados...'):
+        load_data(force_update=True)
+    st.success('Dados atualizados com sucesso!')
+    st.rerun()
 
 # Pegar os DADOS
-df = get_data(db)
+df = load_data()
 
 
 # Transformar a coluna "Data" ques está no formato de data brasileiro em datetime
