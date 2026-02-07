@@ -178,5 +178,7 @@ pyrightconfig.json
 # Generated using ignr.py - github.com/Antrikshy/ignr.py
 
 mega_sena_asloterias_ate_concurso_2721_sorteio.xlsx
+mega_sena_todos.xlsx
+mega_sena.db
 .vscode
 .aider*
