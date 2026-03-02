@@ -36,11 +36,16 @@ def init_db():
     conn.close()
 
 
-def update_from_excel():
-    """Baixa o Excel e atualiza o banco de dados."""
-    excel_file = download_data()
-    if not excel_file:
-        return False
+def update_from_excel(force_download=False):
+    """Baixa o Excel se necessário e atualiza o banco de dados."""
+    excel_file = 'mega_sena_todos.xlsx'
+
+    # Se forçarmos atualização ou o arquivo não existir localmente, baixamos
+    if force_download or not os.path.exists(excel_file):
+        downloaded = download_data()
+        if not downloaded:
+            return False
+        excel_file = downloaded
 
     try:
         # Lê o Excel pulando as 6 primeiras linhas de cabeçalho inútil
@@ -100,7 +105,7 @@ def load_data(force_update=False):
 
     # Se o banco não existe ou for forçado, tenta atualizar do Excel
     if force_update or not os.path.exists(DB_NAME):
-        update_from_excel()
+        update_from_excel(force_download=force_update)
 
     # Sempre tenta pegar o último da API para garantir tempo real
     check_api_update()
